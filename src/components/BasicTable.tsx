@@ -29,6 +29,11 @@ export const BasicTable = () => {
       sorting: sorting,
       globalFilter: filtering,
     },
+    initialState: {
+      pagination: {
+        pageSize: 8,
+      },
+    },
     onSortingChange: setSorting,
     onGlobalFilterChange: setFiltering,
   });
@@ -52,8 +57,8 @@ export const BasicTable = () => {
                 <th key={header.id} onClick={header.column.getToggleSortingHandler()}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
                   {{
-                    asc: <span className="pl-2">↑</span>,
-                    desc: <span className="pl-2">↓</span>,
+                    asc: <span className="pl-2 text-primary">↑</span>,
+                    desc: <span className="pl-2 text-danger">↓</span>,
                   }[header.column.getIsSorted() as string] ?? null}
                 </th>
               ))}
@@ -85,6 +90,83 @@ export const BasicTable = () => {
           Last page
         </Button>
       </ButtonGroup>
+        <p>You are on page number: {' '} {table.getState().pagination.pageIndex + 1}</p>
+        <p>Total pages: {table.getPageCount()}</p>
+        <input 
+          type="number"
+          defaultValue={table.getState().pagination.pageIndex + 1}
+          onChange={(e) => table.setPageIndex(Number(e.target.value) - 1)}
+         />
+      <div className="">
+        <div className="">
+          <span className="">Current page size:</span>
+          <select
+            className=""
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+            disabled={!table.getCanNextPage()}
+          >
+            {[4, 6, 8, 10].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="">
+          <button
+            className={`${
+              !table.getCanPreviousPage() ? "bg-gray-100" : "hover:bg-gray-200 hover:curstor-pointer bg-gray-100"
+            } rounded p-1`}
+            onClick={() => table.setPageIndex(0)}
+          >
+            <span className="w-5 h-5">{"<<"}</span>
+          </button>
+          <button
+            className={`${
+              !table.getCanPreviousPage() ? "bg-gray-100" : "hover:bg-gray-200 hover:curstor-pointer bg-gray-100"
+            } rounded p-1`}
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <span className="w-5 h-5">{"<"}</span>
+          </button>
+          <span className="">
+            <input
+              min={1}
+              max={table.getPageCount()}
+              type="number"
+              value={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className=""
+            />
+            of {table.getPageCount()}
+          </span>
+          <button
+            className={`${
+              !table.getCanNextPage() ? "bg-gray-100" : "hover:bg-gray-200 hover:curstor-pointer bg-gray-100"
+            } rounded p-1`}
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <span className="w-5 h-5">{">"}</span>
+          </button>
+          <button
+            className={`${
+              !table.getCanNextPage() ? "bg-gray-100" : "hover:bg-gray-200 hover:curstor-pointer bg-gray-100"
+            } rounded p-1`}
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <span className="w-5 h-5">{">>"}</span>
+          </button>
+        </div>
+      </div>
     </>
   );
 };
